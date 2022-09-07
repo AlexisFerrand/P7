@@ -93,4 +93,33 @@ module.exports.likePost = async (req, res) => {
 module.exports.unlikePost = async (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send('ID unknown:' + req.params.id);
+
+  try {
+    // On ajout l'utilisateur dans les likers du post
+    await PostModel.findByIdAndUpdate(
+      //Quand un post est unlike on récupère ce post avec son ID qui est placé dans l'URL
+      req.params.id,
+      //pull: enlève au tableau déjà existant
+      {
+        $pull: { likers: req.body.id },
+      },
+      { new: true }
+    )
+      .then((docs) => {
+        UserModel.findByIdAndUpdate(
+          //On récupère l'ID du post dans le body. On enlève à son tableau l'ID du post
+          req.body.id,
+          {
+            $pull: { likes: req.params.id },
+          },
+          { new: true }
+        ).then((data) => {
+          res.status(201).json(data);
+        });
+      })
+
+      .catch((err) => res.status(400).json(err));
+  } catch (err) {
+    return res.status(400).send(err);
+  }
 };
