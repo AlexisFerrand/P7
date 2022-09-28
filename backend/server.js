@@ -20,7 +20,7 @@ const corsOption = {
   preflightContinue: false,
 };
 //on autorise les requêtes
-app.use(cors(corsOptions));
+app.use(cors(corsOption));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
